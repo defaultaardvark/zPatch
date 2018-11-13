@@ -3,7 +3,6 @@ int yel = 21;
 int gre = 22;
 int blu = 23;
 int brightness = 0;
-int fade = 5;
 
 void setup() {
   Serial.begin(9600);
