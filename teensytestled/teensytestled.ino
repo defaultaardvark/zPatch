@@ -19,7 +19,7 @@ void loop() {
     analogWrite(red, brightness);
   }
   else if (fabvar > 250 && fabvar <= 500){
-    brightness = fabvar-250;
+    brightness = fabvar - 250;
     analogWrite(yel, brightness);
   }
   else if (fabvar > 500 && fabvar <= 750){
