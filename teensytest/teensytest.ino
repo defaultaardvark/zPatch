@@ -5,6 +5,6 @@ void setup() {
 void loop() {
   int fabvar = analogRead(A0);
   Serial.println(fabvar);
-  delay(1);
+  delay(500);
 
 }
