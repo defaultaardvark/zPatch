@@ -1,31 +1,4 @@
-///////////////////////////
-// zPatch Sensor Code /////
-///////////////////////////
 
-// paul.strohmeier@gmail.com
-// zPatch.github.io
-
-// This Sketch is for testing zPatch, presented at TEI 2018
-
-// The key things to know are the function 
-// dualAnalogRead(pinA, pinB, samples) and capacitiveRead(pinA, pinB, samples)
-// Both functions take two analog pins as parameters (where your sensors is connected)
-// The third parameter is the number of times you want to sample. 
-// capacitiveRead needs more samples, dualAnalogRead is quite stable.
-
-// Based on the adcTouch library --> https://github.com/martin2250/ADCTouch
-
-//Values for filtering and storing capacitive readings
-/*int baseline;
-int capValues;
-int prevCapValues;
-int rawCapacitance;
-float k = 0.2; // this adjusts the low-pass filter: 
-               // 0 == no signal
-               // 0.001 == very aggressive (slow but steady) 
-               // 0.999 == not aggressive at all (fast but noisy)
-               // 1 == no filter
-*/
 //value for storing resistive readings
 int resValues;
 int red = 20;
@@ -36,6 +9,13 @@ int brightness = 0;
 int resLow;
 int resHigh;
 
+const int numReadings = 10;
+
+int readings[numReadings];      // the readings from the analog input
+int readIndex = 0;              // the index of the current reading
+int total = 0;                  // the running total
+int average = 0;                // the average
+
 void setup()
 {
   Serial.begin(9600); // open the arduino serial port
@@ -43,36 +23,54 @@ void setup()
   pinMode(yel, OUTPUT);
   pinMode(gre, OUTPUT);
   pinMode(blu, OUTPUT);
-  delay(50); //wait a bit before establishing baseline
-  resValues = dualAnalogRead(A0, A1, 3); //this line should not be needed, but might stabalize readings
-  //baseline = capacitiveRead(A0, A1, 10); //set the baseline for capacitive readings
-  //Serial.println(baseline);
+  resValues = dualAnalogRead(A0, A1, 3); //this line should not be needed, but might stabilize readings
+  for (int thisReading = 0; thisReading < numReadings; thisReading++) {
+    readings[thisReading] = 0;
+  }
   delay(50);
 }
 
 
 void loop()
 {
-  /*rawCapacitance = capacitiveRead(A0, A1, 10); //sample capacitance
-  rawCapacitance = (rawCapacitance - baseline); //baseline capacitance value 
-  capValues = prevCapValues + (k * (rawCapacitance - prevCapValues)); //filter capacitive value
-  prevCapValues = capValues; //for filtering*/
-
   resValues = dualAnalogRead(A0, A1, 3); //sample resistance
 
-//print to serial port
-  //Serial.print(capValues); 
-  //Serial.print(", ");
-  Serial.print(resValues); 
-  Serial.println(); 
+  // subtract the last reading:
+  total = total - readings[readIndex];
+  // read from the sensor:
+  readings[readIndex] = resValues;
+  // add the reading to the total:
+  total = total + readings[readIndex];
+  // advance to the next position in the array:
+  readIndex = readIndex + 1;
 
-  resValues = -resValues;
-  //Defines upper and lower bounds of signal
-  if (resValues >= resHigh){
-    resHigh = resValues;
+  // if we're at the end of the array...
+  if (readIndex >= numReadings) {
+    // ...wrap around to the beginning:
+    readIndex = 0;
   }
-  else if (resValues <= resLow){
-    resLow = resValues;
+
+  // calculate the average:
+  average = total / numReadings;
+  // send it to the computer as ASCII digits
+  //Serial.println(average);
+
+  //Serial.print(resValues); 
+  //Serial.println(); 
+  int resVal;
+  resVal = -average;
+  Serial.println(resVal);
+  Serial.println();
+  Serial.println(0);
+  Serial.println();
+  Serial.println(-1500);
+  Serial.println();
+  //Defines upper and lower bounds of signal
+  if (resVal >= resHigh){
+    resHigh = resVal;
+  }
+  else if (resVal <= resLow){
+    resLow = resVal;
   }
   int resRange = resHigh-resLow;
 
@@ -80,21 +78,21 @@ void loop()
   int Q2 = resRange/2;
   int Q3 = resRange*(3/4);
   
-  float k = (255/Q1);  
+  float k = (255/Q1);
   
-  if (resValues <= Q1){
-    brightness = resValues*k;
+  if (resVal <= Q1){
+    brightness = resVal*k;
     analogWrite(red, brightness);
   }
-  else if (resValues > Q1 && resValues <= Q2){
+  else if (resVal > Q1 && resVal <= Q2){
     brightness = (resValues - Q1)*k;
     analogWrite(yel, brightness);
   }
-  else if (resValues > Q2 && resValues <= Q3){
+  else if (resVal > Q2 && resVal <= Q3){
     brightness = (resValues - Q2)*k;
     analogWrite(gre, brightness);
   }
-  else if (resValues > Q3){
+  else if (resVal > Q3){
     brightness = (resHigh - Q3)*k;
     analogWrite(blu, brightness);
   }
