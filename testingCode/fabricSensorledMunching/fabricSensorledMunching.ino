@@ -1,3 +1,4 @@
+
 //value for storing resistive readings
 int resValues;
 int red = 20;
@@ -22,7 +23,6 @@ void setup()
   pinMode(yel, OUTPUT);
   pinMode(gre, OUTPUT);
   pinMode(blu, OUTPUT);
-  resValues = dualAnalogRead(A0, A1, 3); //this line should not be needed, but might stabilize readings
   for (int thisReading = 0; thisReading < numReadings; thisReading++) {
     readings[thisReading] = 0;
   }
@@ -32,7 +32,7 @@ void setup()
 
 void loop()
 {
-  resValues = dualAnalogRead(A0, A1, 3); //sample resistance
+  resValues = fourAnalogRead(A0, A1, A3, A4, A5, 6); //sample resistance
 
   // subtract the last reading:
   total = total - readings[readIndex];
@@ -60,10 +60,10 @@ void loop()
   resVal = -average;
   Serial.println(resVal);
   Serial.println();
-  Serial.println(0);
+  /*Serial.println(0);
   Serial.println();
   Serial.println(-1500);
-  Serial.println();
+  Serial.println();*/
   //Defines upper and lower bounds of signal
   if (resVal >= resHigh){
     resHigh = resVal;
@@ -100,9 +100,45 @@ void loop()
 
 }
 
-int dualAnalogRead(int pinA, int pinB, int number) {
+// ---------------- Here there be Dragons ---------- 
+/*
+int capacitiveRead(int pinA, int pinB, int number) {
+  int capacitanceA = 0;
+  int capacitanceB = 0;
+  int capacitance = 0;
+
+  for (int i = 0; i < number; i++) {
+    pinMode(pinA, INPUT);
+    pinMode(pinB, INPUT_PULLUP);
+    ADMUX |=   0b11111;
+    ADCSRA |= (1 << ADSC); //start conversion
+    while (!(ADCSRA & (1 << ADIF))); //wait for conversion to finish
+    ADCSRA |= (1 << ADIF); //reset the flag
+    pinMode(pinB, INPUT);
+    capacitanceB = analogRead(pinB);
+
+    pinMode(pinB, INPUT);
+    pinMode(pinA, INPUT_PULLUP);
+    ADMUX |=   0b11111;
+    ADCSRA |= (1 << ADSC); //start conversion
+    while (!(ADCSRA & (1 << ADIF))); //wait for conversion to finish
+    ADCSRA |= (1 << ADIF); //reset the flag
+    pinMode(pinA, INPUT);
+    capacitanceA = analogRead(pinA);
+
+    capacitance = capacitance + capacitanceA + capacitanceB;
+
+  }
+  return capacitance;
+}
+*/
+
+int fourAnalogRead(int pinA, int pinB, int pinC, int pinD, int pinE, int number) {
   int resistanceA = 0;
   int resistanceB = 0;
+  int resistanceC = 0;
+  int resistanceD = 0;
+  int resistanceE = 0;
   int resistance = 0;
 
   for (int i = 0; i < number; i++) {
@@ -116,10 +152,23 @@ int dualAnalogRead(int pinA, int pinB, int number) {
     pinMode(pinA, INPUT_PULLUP);
     resistanceA = analogRead(pinA);
 
-    resistance = resistance + (resistanceA + resistanceB) / 2;
+    pinMode(pinC, OUTPUT);
+    digitalWrite(pinC, LOW);
+    pinMode(pinC, INPUT_PULLUP);
+    resistanceC = analogRead(pinC);
+
+    pinMode(pinD, OUTPUT);
+    digitalWrite(pinD, LOW);
+    pinMode(pinD, INPUT_PULLUP);
+    resistanceD = analogRead(pinD);
+
+    pinMode(pinE, OUTPUT);
+    digitalWrite(pinE, LOW);
+    pinMode(pinE, INPUT_PULLUP);
+    resistanceE = analogRead(pinE);
+
+    resistance = (resistanceA + resistanceB + resistanceC + resistanceD + resistanceE);
 
   }
   return resistance / number;
-
-  
 }
