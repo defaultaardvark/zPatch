@@ -1,41 +1,59 @@
 int red = 20;
-int yel = 21;
-int gre = 22;
-int blu = 23;
+int yellow = 21;
+int green = 22;
+int blue = 23;
 
-int index;
-int middle;
-int ring;
-int pinky;
-
-int resLow;
-int resHigh;
+int Index;
+int Mid;
+int Ring;
+int Pink;
+int iniIndex;
+int iniMid;
+int iniRing;
+int iniPink;
 
 void setup() {
   Serial.begin(9600);
   pinMode(red, OUTPUT);
-  pinMode(yel, OUTPUT);
-  pinMode(gre, OUTPUT);
-  pinMode(blu, OUTPUT);
-  index = analogRead(A0);
-  middle = analogRead(A1);
-  ring = analogRead(A2);
-  pinky = analogRead(A3);
-  
-  resLow = resHigh = resVal;
+  pinMode(yellow, OUTPUT);
+  pinMode(green, OUTPUT);
+  pinMode(blue, OUTPUT);
+  iniIndex = analogRead(A0);
+  iniMid = analogRead(A1);
+  iniRing = analogRead(A2);
+  iniPink = analogRead(A3);
 }
 
+
 void loop() {
-  resVal = analogRead(A0);
+  Index = analogRead(A0);
+  Mid = analogRead(A1);
+  Ring = analogRead(A2);
+  Pink = analogRead(A3);
   
-  if (resVal >= resHigh){
-    resHigh = resVal;
-  }
-  int tip = (resHigh - resLow)/2;
-  if (resVal >= tip){
+  if (Index <= (iniIndex)){
     analogWrite(red, 255);
   }
   else{
     analogWrite(red, 0);
   }
-}
+  if (Mid <= (iniMid)){
+    analogWrite(yellow,255);
+  }
+  else{
+    analogWrite(yellow,0 );
+  }
+  if (Ring <= (iniRing)){
+    analogWrite(green, 255);
+  }
+  else{
+    analogWrite(green, 0);
+  }
+  if (Pink <= (iniPink)){
+    analogWrite(blue, 255);
+  }
+  else{
+    analogWrite(blue, 0);
+  }
+  Serial.println(Ring);
+ }
