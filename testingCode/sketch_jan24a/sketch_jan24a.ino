@@ -1,75 +1,67 @@
-int red = 20;
-int yellow = 21;
-int green = 22;
-int blue = 23;
-
-
 int Index;
 int Mid;
 int Ring;
 int Pink;
 int Thumb;
-int iniIndex;
-int iniMid;
-int iniRing;
-int iniPink;
-int iniThumb;
 
-void setup() {
+float Index_avg = 0; //Reading average
+float Mid_avg = 0;
+float Ring_avg = 0;
+float Pink_avg = 0;
+float Thumb_avg = 0;
+int avg_count = 32; //# of measurements to average
+
+long startTime;
+long time1;
+long time2;
+long elapsedTime1;
+long elapsedTime2;
+long avgElapsedTime;
+
+void setup() {  
   Serial.begin(9600);
-  pinMode(red, OUTPUT);
-  pinMode(yellow, OUTPUT);
-  pinMode(green, OUTPUT);
-  pinMode(blue, OUTPUT);
-  iniIndex = analogRead(A0);
-  iniMid = analogRead(A1);
-  iniRing = analogRead(A2);
-  iniPink = analogRead(A3);
-  iniThumb = analogRead(A4);
+  startTime = millis();
+  time1 = startTime;
 }
 
-
-void loop() {
+void loop() {  
   Index = analogRead(A0);
   Mid = analogRead(A1);
   Ring = analogRead(A2);
   Pink = analogRead(A3);
   Thumb = analogRead(A4);
 
-  /*
-  if (Index <= (iniIndex)){
-    analogWrite(red, 255);
+  for (int n = 0; n < avg_count; ++n)
+  {
+    Index_avg += Index;
+    Mid_avg += Mid;
+    Ring_avg += Ring;
+    Pink_avg += Pink;
+    Thumb_avg += Thumb;
+    delay(1);
   }
-  else{
-    analogWrite(red, 0);
-  }
-  if (Mid <= (iniMid)){
-    analogWrite(yellow,255);
-  }
-  else{
-    analogWrite(yellow,0 );
-  }
-  if (Ring <= (iniRing)){
-    analogWrite(green, 255);
-  }
-  else{
-    analogWrite(green, 0);
-  }
-  if (Pink <= (iniPink)){
-    analogWrite(blue, 255);
-  }
-  else{
-    analogWrite(blue, 0);
-  }
-  */
-  Serial.print(Index);
+  Index_avg /= Index;
+  Mid_avg /= Mid;
+  Ring_avg /= Ring;
+  Pink_avg /= Pink;
+  Thumb_avg /= Thumb;
+
+  time2 = millis();
+  elapsedTime1 = elapsedTime2;
+  elapsedTime2 = time2 - time1;
+  time1 = millis();
+  avgElapsedTime = (elapsedTime1 + elapsedTime2)/2;
+  
+  Serial.print(Index_avg);
   Serial.print(",");
-  Serial.print(Mid);
+  Serial.print(Mid_avg);
   Serial.print(",");
-  Serial.print(Ring);
+  Serial.print(Ring_avg);
   Serial.print(",");
-  Serial.print(Pink);
+  Serial.print(Pink_avg);
   Serial.print(",");
-  Serial.println(Thumb);
-  delay(100);
+  Serial.println(Thumb_avg);
+  /*Serial.print(",");
+  Serial.println(avgElapsedTime);*/
+  delay(5);  
 }
