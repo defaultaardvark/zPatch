@@ -1,2 +1,0 @@
-# zPatch
-Capstone Project
