@@ -1,57 +1,67 @@
-int Index;
+int Index; //Running totals of each finger
 int Mid;
 int Ring;
 int Pink;
 int Thumb;
 
-float Index_avg = 0; //Reading average
-float Mid_avg = 0;
-float Ring_avg = 0;
-float Pink_avg = 0;
-float Thumb_avg = 0;
-int avg_count = 32; //# of measurements to average
+const int avg_count = 16; //# of measurements to average
 
-long startTime;
-long time1;
-long time2;
-long elapsedTime1;
-long elapsedTime2;
-long avgElapsedTime;
+int Index_read[avg_count]; //Array of readings from analog
+int Mid_read[avg_count];
+int Ring_read[avg_count];
+int Pink_read[avg_count];
+int Thumb_read[avg_count];
 
-void setup() {  
-  Serial.begin(9600);
-  startTime = millis();
-  time1 = startTime;
+int readIndex = 0; //Index of current reading
+
+int Index_avg = 0;
+int Mid_avg = 0;
+int Ring_avg = 0;
+int Pink_avg = 0;
+int Thumb_avg = 0;
+
+void setup() {
+  Serial.begin(115200);
+  for (int n = 0; n < avg_count; n++){
+    Index_read[n] = 0;
+    Mid_read[n] = 0;
+    Ring_read[n] = 0;
+    Pink_read[n] = 0;
+    Thumb_read[n] = 0;
+  }
 }
 
-void loop() {  
-  Index = analogRead(A0);
-  Mid = analogRead(A1);
-  Ring = analogRead(A2);
-  Pink = analogRead(A3);
-  Thumb = analogRead(A4);
-
-  for (int n = 0; n < avg_count; ++n)
-  {
-    Index_avg += Index;
-    Mid_avg += Mid;
-    Ring_avg += Ring;
-    Pink_avg += Pink;
-    Thumb_avg += Thumb;
-    delay(1);
-  }
-  Index_avg /= Index;
-  Mid_avg /= Mid;
-  Ring_avg /= Ring;
-  Pink_avg /= Pink;
-  Thumb_avg /= Thumb;
-
-  time2 = millis();
-  elapsedTime1 = elapsedTime2;
-  elapsedTime2 = time2 - time1;
-  time1 = millis();
-  avgElapsedTime = (elapsedTime1 + elapsedTime2)/2;
+void loop() {
+  Index = Index - Index_read[readIndex];
+  Mid = Mid - Mid_read[readIndex];
+  Ring = Ring - Ring_read[readIndex];
+  Pink = Pink - Pink_read[readIndex];
+  Thumb = Thumb - Thumb_read[readIndex];
   
+  Index_read[readIndex] = analogRead(A0);
+  Mid_read[readIndex] = analogRead(A1);
+  Ring_read[readIndex] = analogRead(A2);
+  Pink_read[readIndex] = analogRead(A3);
+  Thumb_read[readIndex] = analogRead(A4);
+
+  Index = Index + Index_read[readIndex];
+  Mid = Mid + Mid_read[readIndex];
+  Ring = Ring + Ring_read[readIndex];
+  Pink = Pink + Pink_read[readIndex];
+  Thumb = Thumb + Thumb_read[readIndex];
+
+  readIndex = readIndex + 1;
+
+  if (readIndex >= avg_count){
+    readIndex = 0;
+  }
+
+  Index_avg = Index/avg_count;
+  Mid_avg = Mid/avg_count;
+  Ring_avg = Ring/avg_count;
+  Pink_avg = Pink/avg_count;
+  Thumb_avg = Thumb/avg_count;
+
   Serial.print(Index_avg);
   Serial.print(",");
   Serial.print(Mid_avg);
@@ -61,7 +71,5 @@ void loop() {
   Serial.print(Pink_avg);
   Serial.print(",");
   Serial.println(Thumb_avg);
-  /*Serial.print(",");
-  Serial.println(avgElapsedTime);*/
-  delay(5);  
+  delay(10);
 }

@@ -4,7 +4,7 @@ import csv
 import cv2
 import datetime
 
-teensy_ser = serial.Serial("COM8", timeout = 1, baudrate = 9600)
+teensy_ser = serial.Serial("COM8", timeout = 0, baudrate = 9600)
 teensy_ser.flushInput()
 vid = cv2.VideoCapture(0)
 
